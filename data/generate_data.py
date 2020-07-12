@@ -5,6 +5,7 @@ import gzip
 import json
 import os
 import random
+import sys
 import uuid
 
 import constants
@@ -13,7 +14,8 @@ import constants
 def main():
     """Start the ball rolling."""
     os.makedirs("../json-data", exist_ok=True)
-    num_docs = 1005
+    # num_docs = 1005
+    num_docs = int(sys.argv[1])
     for answerno in range(num_docs):
         print('Creating document', answerno, 'of', num_docs)
         basename = "../json-data/chunck_%s" % uuid.uuid4()
