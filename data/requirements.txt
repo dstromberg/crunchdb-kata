@@ -3,3 +3,4 @@ pylint
 pytest
 compress_json
 unidecode
+pudb
