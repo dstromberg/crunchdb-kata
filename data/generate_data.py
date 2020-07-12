@@ -1,23 +1,47 @@
-# Very naive utility to simulate random chunks of survey data
+"""Provide a Very naive utility to simulate random chunks of survey data."""
+
+import gzip
+# import itertools
 import json
-import itertools
+import os
 import random
+import uuid
+
+import constants
 
 
-from constants import *
+def main():
+    """Start the ball rolling."""
+    os.makedirs("../json-data", exist_ok=True)
+    num_docs = 1005
+    for answerno in range(num_docs):
+        print('Creating document', answerno, 'of', num_docs)
+        basename = "../json-data/chunck_%s" % uuid.uuid4()
+        tempname = basename + '.temp.gz'
+        longtermname = basename + '.json.gz'
+
+        # We compress with gzip.
+        # It's relatively fast compression.
+        # We could compress with bzip2 or zlib instead if we have the CPU time available.
+        # We could do bits and bytes, but that's harder to debug, and only worth it if there's a LOT of data to store.
+        # We could eliminate all unanswered responses, but that is a little prone to surprises.
+        # We also have the option of using bson instead of json.
+        with gzip.open(tempname, "w") as answerfile:
+            row = {"pk": "%d" % answerno}
+            for carvar in constants.carvars:
+                row[carvar] = random.choice(constants.carbrands)
+            for carvar in constants.mrcarvars:
+                for carbrand in constants.carbrands:
+                    row["%s.%s" % (carvar, carbrand)] = random.choice(constants.answers)
+            for singvar in constants.singervars:
+                row[singvar] = random.choice(constants.singers)
+            for singvar in constants.mrsingervars:
+                for singer in constants.singers:
+                    row["%s.%s" % (singvar, singer)] = random.choice(constants.answers)
+            string = json.dumps(row)
+            answerfile.write(string.encode('UTF-8'))
+        os.rename(tempname, longtermname)
 
 
-for ans in range(1005):
-    with open("chunck_%04d.jsonl" % ans, "w") as ansf:
-        row = {"pk": "%d" % ans}
-        for carvar in carvars:
-            row[carvar] = random.choice(carbrands)
-        for carvar in mrcarvars:
-            for carbrand in carbrands:
-                row["%s.%s" % (carvar, carbrand)] = random.choice(answers)
-        for singvar in singervars:
-            row[singvar] = random.choice(singers)
-        for singvar in mrsingervars:
-            for singer in singers:
-                row["%s.%s" % (singvar, singer)] = random.choice(answers)
-        json.dump(row, ansf)
+if __name__ == '__main__':
+    main()
