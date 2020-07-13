@@ -47,6 +47,7 @@ def get_json_documents(convert=True):
                 # This is nice for debugging
                 json_dict = json.loads(str_data, object_hook=ascii_encode_dict)
             else:
+                # This is nice for preserving foreign-language text
                 json_dict = json.loads(str_data)
             yield json_dict
 
@@ -94,7 +95,6 @@ def main():
         usage(1)
 
     counter = collections.Counter()
-    keys = set()
     for json_docno, json_document in enumerate(get_json_documents()):
         print(json_docno, file=sys.stderr)
         for key, value in json_document.items():
@@ -106,7 +106,6 @@ def main():
             assert dot == '.', "dot is {}".format(dot)
             assert name != ''
             # pudb.set_trace()
-            keys.add(base)
             # Counter({'listened_singers': 558224,
             # 'known_singers': 558224,
             # 'disliked_singers': 558224,
